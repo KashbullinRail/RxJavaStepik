@@ -280,5 +280,23 @@ class ExampleUnitTest {
         Thread.sleep(10000)
     }
 
+    @Test
+    fun concat() {
+        //излучает каждые 2 секунды, берем первые три
+        val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .take(6)
+            .map { l -> l + 1 }
+            .map { l -> "Source1 $l second" }
+
+        //излучает каждые 400мс
+        val source2 = Observable.interval(400, TimeUnit.MILLISECONDS)
+            .map { l -> (l+1)*400 }
+            .map { l -> "Source2 $l millisecond" }
+
+        Observable.concat(source1, source2)
+            .subscribe{i -> println("print $i")}
+        Thread.sleep(10000)
+    }
+
 
 }
