@@ -195,13 +195,53 @@ class ExampleUnitTest {
     @Test
     fun take() {
         val source = Observable.fromArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-        source.take(3).subscribe {s -> println("take $s")}
+        source.take(3).subscribe { s -> println("take $s") }
     }
 
     @Test
     fun takeWhile() {
         val source = Observable.fromArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
-        source.takeWhile{x -> x < 6}.subscribe {s -> println("take $s")}
+        source.takeWhile { x -> x < 6 }.subscribe { s -> println("take $s") }
+    }
+
+    @Test
+    fun distinct() {
+        val source = Observable.fromArray(1, 2, 3, 4, 5, 6, 3, 8, 9, 5, 11, 12)
+        source.distinct().subscribe { s -> println("take $s") }
+    }
+
+    @Test
+    fun elementAt() {
+        val source = Observable.fromArray(1, 2, 3, 4, 5, 6, 3, 8, 9, 5, 11, 12)
+        source.elementAt(0).subscribe { s -> println("take $s") }
+    }
+
+    data class BookOld(
+        val list: String,
+        val size: Int
+    )
+
+    data class BookNew(
+        val list: String,
+        val size: Int
+    )
+
+    object BookConverter {
+        fun toNewObject(old: BookOld): BookNew {
+            return BookNew(
+                list = old.list,
+                size = old.size / 4
+            )
+        }
+    }
+
+    @Test
+    fun map() {
+        val book = BookOld(list = "trtr3t", size = 450)
+        val source = Observable.just(book)
+        source
+            .map { old -> BookConverter.toNewObject(old) }
+            .subscribe { s -> println(s) }
     }
 
 
