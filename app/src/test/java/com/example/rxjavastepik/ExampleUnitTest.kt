@@ -1,8 +1,11 @@
 package com.example.rxjavastepik
 
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 import java.util.concurrent.Callable
 
@@ -110,13 +113,56 @@ class ExampleUnitTest {
 
     @Test
     fun fromCallable() {
-       val callable = Observable.fromCallable {
-           return@fromCallable System.currentTimeMillis().toString()
-       }
+        val callable = Observable.fromCallable {
+            return@fromCallable
+            val time = System.currentTimeMillis()
+        }
+        callable.subscribe()
+        println(callable)
+        Thread.sleep(5000)
         callable.subscribe()
         println(callable)
     }
 
+    @Test
+    fun createMethod() {
+
+        val source = PublishSubject.create<String>()
+        source.subscribe(getObserver())
+        source.onNext("one")
+        source.onNext("Two")
+        source.onNext("Three")
+
+    }
+
+    private fun getObserver(): Observer<String> {
+        return object : Observer<String> {
+
+            override fun onSubscribe(d: Disposable) {
+                println("onSubscribe ${d.isDisposed}")
+            }
+
+            override fun onNext(t: String) {
+                println("onNext $t")
+            }
+
+            override fun onError(e: Throwable) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onComplete() {
+                println("onComplete")
+            }
+
+        }
+    }
+
+    @Test
+    fun single() {
+        val source = Single.just("MySingle")
+        source.subscribe { s -> println("Received $s")
+        }
+    }
 
 
 }
