@@ -3,10 +3,13 @@ package com.example.rxjavastepik
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.BiFunction
+import io.reactivex.rxjava3.observers.TestObserver
+import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 import java.util.concurrent.Callable
@@ -354,8 +357,33 @@ class ExampleUnitTest {
     }
     //******************
 
+    @Test
+    fun subscribeOn() {
+        val source = Observable.just(1, 2, 3, 4)
+        source
+            .subscribeOn(Schedulers.computation())
+            .observeOn(Schedulers.newThread())
+//            .observeOn(Schedulers.computation())
+            .subscribe { i ->
+                println("Received $i on thread ${Thread.currentThread().name}")
+            }
+        Thread.sleep(7000)
+    }
 
+    @Test
+    fun errors() {
+        val testObserver = TestObserver<Int>()
 
+        val source = Observable.just(5,  0, 1)
+            .map { i -> 10 / i }
+            .onErrorReturnItem(200)
+
+        source.subscribe(testObserver)
+        testObserver.assertNoErrors()
+        testObserver.assertComplete()
+        testObserver.assertValueCount(2)
+        testObserver.assertValues(2, 200)
+    }
 
 
 }
