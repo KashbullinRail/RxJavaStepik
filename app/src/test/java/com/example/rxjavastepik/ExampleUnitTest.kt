@@ -374,7 +374,7 @@ class ExampleUnitTest {
     fun errors() {
         val testObserver = TestObserver<Int>()
 
-        val source = Observable.just(5,  0, 1)
+        val source = Observable.just(5, 0, 1)
             .map { i -> 10 / i }
             .onErrorReturnItem(200)
 
@@ -384,6 +384,33 @@ class ExampleUnitTest {
         testObserver.assertValueCount(2)
         testObserver.assertValues(2, 200)
     }
+
+    @Test
+    fun errorResume() {
+        val testObserver = TestObserver<Int>()
+
+        val source = Observable.just(5, 2, 1, 0, 4, 7, 3)
+            .map { i -> 10 / i }
+            .onErrorResumeNext { Observable.just(100, 200, 300) }
+
+        source.subscribe(testObserver)
+        testObserver.assertNoErrors()
+        testObserver.assertComplete()
+        testObserver.assertValueCount(6)
+        testObserver.assertValues(2, 5, 10, 100, 200, 300)
+    }
+
+    @Test
+    fun retry() {
+        Observable.just(5, 2, 1, 0, 4, 7, 3)
+            .map { i -> 10 / i }
+            .retry(2)
+            .subscribe({i -> println("Received $i")},
+                {e -> println("receivedError $e")})
+
+    }
+
+
 
 
 }
