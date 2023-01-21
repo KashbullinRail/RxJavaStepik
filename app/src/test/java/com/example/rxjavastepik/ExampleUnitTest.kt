@@ -4,6 +4,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
@@ -175,7 +176,23 @@ class ExampleUnitTest {
             disposable?.dispose()
             println(disposable)
         }
-
     }
+
+
+    @Test
+    fun compositeDisposable() {
+        val compositeDisposable = CompositeDisposable()
+        var disposable: Disposable? = null
+        val source = Observable.just("disposableMy")
+        compositeDisposable.addAll((source.subscribe {s -> println("Received1 $s")}))
+        compositeDisposable.addAll((source.subscribe {s -> println("Received2 $s")}))
+        println(compositeDisposable)
+        compositeDisposable.clear()
+        println(compositeDisposable)
+    }
+
+
+
+
 
 }
