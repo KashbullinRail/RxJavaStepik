@@ -9,6 +9,7 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 import java.util.concurrent.Callable
+import java.util.concurrent.TimeUnit
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -216,6 +217,8 @@ class ExampleUnitTest {
         source.elementAt(0).subscribe { s -> println("take $s") }
     }
 
+
+    //*****************
     data class BookOld(
         val list: String,
         val size: Int
@@ -242,6 +245,39 @@ class ExampleUnitTest {
         source
             .map { old -> BookConverter.toNewObject(old) }
             .subscribe { s -> println(s) }
+    }
+    //*****************
+
+    @Test
+    fun flatMap() {
+        val initialSource: Observable<String> = Observable.just("day")
+
+        initialSource.flatMap {
+            if (it == "day") {
+                return@flatMap Observable.just("Mon", "Tue", "The")
+            } else {
+                return@flatMap Observable.just("wen", "sat", "fry")
+            }
+        }.subscribe { s -> println(s) }
+
+    }
+
+    @Test
+    fun merge() {
+        //излучает каждые 2 секунды, берем первые три
+        val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .take(6)
+            .map { l -> l + 1 }
+            .map { l -> "Source1 $l second" }
+
+        //излучает каждые 400мс
+        val source2 = Observable.interval(400, TimeUnit.MILLISECONDS)
+            .map { l -> (l+1)*400 }
+            .map { l -> "Source2 $l millisecond" }
+
+        Observable.merge(source1, source2)
+            .subscribe{i -> println("print $i")}
+        Thread.sleep(10000)
     }
 
 
