@@ -164,5 +164,18 @@ class ExampleUnitTest {
         }
     }
 
+    @Test
+    fun disposable() {
+        var disposable: Disposable? = null
+        val source = Observable.just("disposableMy")
+        disposable = source.subscribe {
+            s -> println("Received $s")
+            //clear resourses
+            println(disposable)
+            disposable?.dispose()
+            println(disposable)
+        }
+
+    }
 
 }
