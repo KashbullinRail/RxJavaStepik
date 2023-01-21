@@ -1,8 +1,9 @@
 package com.example.rxjavastepik
 
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
 import org.junit.Test
-
-import org.junit.Assert.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -10,8 +11,68 @@ import org.junit.Assert.*
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
+
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun observable() {
+
+        val months = Observable.just(
+            "jan", "feb", "mar", "apr",
+            "may", "jun", "jul", "aug"
+        )
+
+        months.subscribe(object :Observer<String> {
+
+            override fun onSubscribe(d: Disposable) {
+                println("onSubscribe;" + Thread.currentThread().name + "\n")
+            }
+
+            override fun onNext(t: String) {
+                println("onNext $t")
+            }
+
+            override fun onError(e: Throwable) {
+                println("onError $e")
+            }
+
+            override fun onComplete() {
+                println("\n onComplete")
+            }
+
+        })
+
     }
+
+    @Test
+    fun fromIterable() {
+
+        val list = listOf(
+            "jan", "feb", "mar", "apr",
+            "may", "jun", "jul", "aug"
+        )
+
+        val months = Observable.fromIterable(list)
+
+        months.subscribe(object :Observer<String> {
+
+            override fun onSubscribe(d: Disposable) {
+                println("onSubscribe;" + Thread.currentThread().name + "\n")
+            }
+
+            override fun onNext(t: String) {
+                println("onNext $t")
+            }
+
+            override fun onError(e: Throwable) {
+                println("onError $e")
+            }
+
+            override fun onComplete() {
+                println("\n onComplete")
+            }
+
+        })
+
+    }
+
+
 }
