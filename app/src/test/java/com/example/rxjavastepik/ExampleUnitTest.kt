@@ -6,6 +6,7 @@ import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.functions.BiFunction
 import io.reactivex.rxjava3.subjects.PublishSubject
 import org.junit.Test
 import java.util.concurrent.Callable
@@ -272,11 +273,11 @@ class ExampleUnitTest {
 
         //излучает каждые 400мс
         val source2 = Observable.interval(400, TimeUnit.MILLISECONDS)
-            .map { l -> (l+1)*400 }
+            .map { l -> (l + 1) * 400 }
             .map { l -> "Source2 $l millisecond" }
 
         Observable.merge(source1, source2)
-            .subscribe{i -> println("print $i")}
+            .subscribe { i -> println("print $i") }
         Thread.sleep(10000)
     }
 
@@ -290,13 +291,71 @@ class ExampleUnitTest {
 
         //излучает каждые 400мс
         val source2 = Observable.interval(400, TimeUnit.MILLISECONDS)
-            .map { l -> (l+1)*400 }
+            .map { l -> (l + 1) * 400 }
             .map { l -> "Source2 $l millisecond" }
 
         Observable.concat(source1, source2)
-            .subscribe{i -> println("print $i")}
+            .subscribe { i -> println("print $i") }
         Thread.sleep(10000)
     }
+
+    @Test
+    fun debounce() {
+        //излучает каждые 2 секунды, берем первые три
+        val source1 = Observable.interval(450, TimeUnit.MILLISECONDS)
+            .map { i -> "Source1 $i" }
+            .take(6)
+//            .doOnNext {x:String? -> println(x)}
+
+        val source2 = Observable.interval(1150, TimeUnit.MILLISECONDS)
+            .map { i -> "Source2 $i" }
+            .take(6)
+//            .doOnNext {x:String? -> println(x)}
+
+        val source3 = Observable.interval(2150, TimeUnit.MILLISECONDS)
+            .map { i -> "Source3 $i" }
+            .take(6)
+//            .doOnNext {x:String? -> println(x)}
+
+
+        Observable.merge(source1, source2, source3)
+            .debounce(1000, TimeUnit.MILLISECONDS)
+            .subscribe { i: String? -> println("print $i") }
+        Thread.sleep(10000)
+    }
+
+    //*********************
+    data class One(
+        val list: String,
+        val size: Int
+    )
+
+    data class Two(
+        val date: String,
+        val author: String
+    )
+
+    data class Finish(
+        val date: String,
+        val author: String,
+        val size: Int
+    )
+
+    @Test
+    fun zip() {
+        val source1 = Observable.just(One("Bababa", 65))
+        val source2 = Observable.just(Two("2022-12-12", "Ivan"))
+
+        Observable.zip(source1, source2,
+            BiFunction<One, Two, Finish> { one, two ->
+                Finish(two.date, two.author, one.size)
+            })
+            .subscribe { s -> println(s) }
+    }
+    //******************
+
+
+
 
 
 }
