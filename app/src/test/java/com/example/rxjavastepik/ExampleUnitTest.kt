@@ -161,7 +161,8 @@ class ExampleUnitTest {
     @Test
     fun single() {
         val source = Single.just("MySingle")
-        source.subscribe { s -> println("Received $s")
+        source.subscribe { s ->
+            println("Received $s")
         }
     }
 
@@ -169,8 +170,8 @@ class ExampleUnitTest {
     fun disposable() {
         var disposable: Disposable? = null
         val source = Observable.just("disposableMy")
-        disposable = source.subscribe {
-            s -> println("Received $s")
+        disposable = source.subscribe { s ->
+            println("Received $s")
             //clear resourses
             println(disposable)
             disposable?.dispose()
@@ -184,15 +185,24 @@ class ExampleUnitTest {
         val compositeDisposable = CompositeDisposable()
         var disposable: Disposable? = null
         val source = Observable.just("disposableMy")
-        compositeDisposable.addAll((source.subscribe {s -> println("Received1 $s")}))
-        compositeDisposable.addAll((source.subscribe {s -> println("Received2 $s")}))
+        compositeDisposable.addAll((source.subscribe { s -> println("Received1 $s") }))
+        compositeDisposable.addAll((source.subscribe { s -> println("Received2 $s") }))
         println(compositeDisposable)
         compositeDisposable.clear()
         println(compositeDisposable)
     }
 
+    @Test
+    fun take() {
+        val source = Observable.fromArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        source.take(3).subscribe {s -> println("take $s")}
+    }
 
-
+    @Test
+    fun takeWhile() {
+        val source = Observable.fromArray(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+        source.takeWhile{x -> x < 6}.subscribe {s -> println("take $s")}
+    }
 
 
 }
