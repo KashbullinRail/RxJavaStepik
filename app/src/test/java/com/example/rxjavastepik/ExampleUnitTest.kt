@@ -10,7 +10,12 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.functions.BiFunction
 import io.reactivex.rxjava3.observers.TestObserver
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.AsyncSubject
+import io.reactivex.rxjava3.subjects.BehaviorSubject
 import io.reactivex.rxjava3.subjects.PublishSubject
+import io.reactivex.rxjava3.subjects.ReplaySubject
+import io.reactivex.rxjava3.subjects.Subject
+import io.reactivex.rxjava3.subjects.UnicastSubject
 import org.junit.Test
 import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
@@ -409,6 +414,104 @@ class ExampleUnitTest {
                 {e -> println("receivedError $e")})
 
     }
+
+
+    @Test
+    fun publishSubject() {
+        val subject: Subject<String>  = PublishSubject.create()
+
+        subject.subscribe {s -> println("publish1 $s")}
+
+        subject.onNext("One")
+        subject.onNext("Two")
+        subject.onNext("Three")
+
+        subject.subscribe {s -> println("publish2 $s")}
+        subject.onComplete()
+        subject.subscribe {s -> println("publish3 $s")}
+
+    }
+
+    @Test
+    fun behaviorSubject() {
+        val subject: Subject<String>  = BehaviorSubject.create()
+
+        subject.subscribe {s -> println("publish1 $s")}
+
+        subject.onNext("One")
+        subject.onNext("Two")
+        subject.onNext("Three")
+
+        subject.subscribe {s -> println("publish2 $s")}
+        subject.onComplete()
+        subject.subscribe {s -> println("publish3 $s")}
+    }
+
+    @Test
+    fun replaySubject() {
+        val subject: Subject<String>  = ReplaySubject.create()
+
+        subject.subscribe {s -> println("publish1 $s")}
+
+        subject.onNext("One")
+        subject.onNext("Two")
+        subject.onNext("Three")
+
+        subject.subscribe {s -> println("publish2 $s")}
+        subject.onComplete()
+        subject.subscribe {s -> println("publish3 $s")}
+    }
+
+    @Test
+    fun asyncSubject() {
+        val subject: Subject<String>  = AsyncSubject.create()
+
+        subject.subscribe(
+            {s -> println("publish1 $s")},
+            {e -> println("error1 ${e.printStackTrace()}")}
+        ) { println("observer 1 done")}
+
+        subject.onNext("One")
+        subject.onNext("Two")
+        subject.onNext("Three")
+
+        subject.subscribe(
+            {s -> println("publish2 $s")},
+            {e -> println("error2 ${e.printStackTrace()}")}
+        ) { println("observer 2 done")}
+
+        subject.onComplete()
+
+        subject.subscribe(
+            {s -> println("publish3 $s")},
+            {e -> println("error1=2 ${e.printStackTrace()}")}
+        ) { println("observer 3 done")}
+
+    }
+
+    @Test
+    fun unicastSubject() {
+        val subject:Subject<String> = UnicastSubject.create()
+
+        Observable.interval(1000, TimeUnit.MILLISECONDS)
+            .map { l:Long -> ((l+1)*300).toString() + "millisecond" }
+            .subscribe(subject)
+
+//        subject.subscribe {s -> println("unicast1 $s")}
+        Thread.sleep(6000)
+        subject.subscribe {s -> println("unicast2 $s")}
+        Thread.sleep(6000)
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 
